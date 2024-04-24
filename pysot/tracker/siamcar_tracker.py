@@ -17,7 +17,7 @@ from pysot.utils.misc import bbox_clip
 class SiamCARTracker(SiameseTracker):
     def __init__(self, model, cfg):
         super(SiamCARTracker, self).__init__()
-        self.name = 'SiamCART'
+        self.name = 'SiamDSACF'
         hanning = np.hanning(cfg.SCORE_SIZE)
         self.window = np.outer(hanning, hanning)
         self.model = model
@@ -94,8 +94,8 @@ class SiamCARTracker(SiameseTracker):
         ##find出数组某元素（或某组元素）拉成一维后的索引值在原本维度（或指定新维度）中对应的索引
         max_r = int(round(max_r_up_hp / scale_score))
         max_c = int(round(max_c_up_hp / scale_score))
-        max_r = bbox_clip(max_r, 0, cfg.TRACK.SCORE_SIZE-1)
-        max_c = bbox_clip(max_c, 0, cfg.TRACK.SCORE_SIZE-1)
+        max_r = bbox_clip(max_r, 0, cfg.TRACK.SCORE_SIZE)##cfg.TRACK.SCORE_SIZE-1
+        max_c = bbox_clip(max_c, 0, cfg.TRACK.SCORE_SIZE)
         ##why possible max_c=25
         bbox_region = lrtbs[max_r, max_c, :]
         min_bbox = int(cfg.TRACK.REGION_S * cfg.TRACK.EXEMPLAR_SIZE)
@@ -133,10 +133,10 @@ class SiamCARTracker(SiameseTracker):
         s_z= np.sqrt(w_z * h_z)
         self.scale_z = cfg.TRACK.EXEMPLAR_SIZE / s_z
         s_x = s_z * (cfg.TRACK.INSTANCE_SIZE / cfg.TRACK.EXEMPLAR_SIZE)
-        x_crop_r = self.get_subwindow(rgb_img, self.center_pos_r,
+        x_crop_r = self.get_subwindow(rgb_img, self.center_pos,
                                     cfg.TRACK.INSTANCE_SIZE,
                                     round(s_x), self.channel_average_r)
-        x_crop_t = self.get_subwindow(t_img, self.center_pos_t,
+        x_crop_t = self.get_subwindow(t_img, self.center_pos,
                                       cfg.TRACK.INSTANCE_SIZE,
                                       round(s_x), self.channel_average_t)
         outputs = self.model.track(x_crop_r,x_crop_t)
@@ -183,6 +183,8 @@ class SiamCARTracker(SiameseTracker):
 
         # udpate state
         self.center_pos = np.array([cx, cy])
+        # self.center_pos_t = np.array([cx, cy])
+        # self.center_pos_r = np.array([cx, cy])
         self.size = np.array([width, height])
         bbox = [cx - width / 2,
                 cy - height / 2,

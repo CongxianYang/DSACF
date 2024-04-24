@@ -63,10 +63,16 @@ class SubDataset(object):
         list_file = list
         with open(list_file, 'r') as f:
             self.seq_names = f.read().strip().split('\n')
+        # if(name=='GTOT'):
+        #     self.seq_dirs_rgb = [os.path.join(root, s, 'v')
+        #                          for s in self.seq_names]
+        #     self.seq_dirs_t = [os.path.join(root, s, 'i')
+        #                        for s in self.seq_names]
+        # else:
         self.seq_dirs_rgb = [os.path.join(root, s, 'visible')
-                             for s in self.seq_names]
+                              for s in self.seq_names]
         self.seq_dirs_t = [os.path.join(root, s, 'infrared')
-                           for s in self.seq_names]
+                            for s in self.seq_names]
         self.rgb_anno_files = [os.path.join(root, s, 'visible.txt')
                                for s in self.seq_names]
         self.t_anno_files = [os.path.join(root, s, 'infrared.txt')  ##跟init一样
@@ -127,41 +133,41 @@ class SubDataset(object):
             pick += lists
         return pick[:self.num_use]
 ##
-    def get_image_anno(self, video, track, frame):
-        image_path = os.path.join(self.root, video,
-                                  self.path_format.format(frame, track, 'x'))
-        image_anno = self.labels[video][track][frame]
-        return image_path, image_anno
+    # def get_image_anno(self, video, track, frame):
+    #     image_path = os.path.join(self.root, video,
+    #                               self.path_format.format(frame, track, 'x'))
+    #     image_anno = self.labels[video][track][frame]
+    #     return image_path, image_anno
 ##
-    def get_positive_pair(self, index):
-        video_name = self.videos[index]
-        video = self.labels[video_name]
-        track = np.random.choice(list(video.keys()))
-        track_info = video[track]
-
-        frames = track_info['frames']
-        template_frame = np.random.randint(0, len(frames))
-        left = max(template_frame - self.frame_range, 0)
-        right = min(template_frame + self.frame_range, len(frames)-1) + 1
-        search_range = frames[left:right]
-        template_frame = frames[template_frame]
-        search_frame = np.random.choice(search_range)
-        return self.get_image_anno(video_name, track, template_frame), \
-            self.get_image_anno(video_name, track, search_frame)
+    # def get_positive_pair(self, index):
+    #     video_name = self.videos[index]
+    #     video = self.labels[video_name]
+    #     track = np.random.choice(list(video.keys()))
+    #     track_info = video[track]
+    #
+    #     frames = track_info['frames']
+    #     template_frame = np.random.randint(0, len(frames))
+    #     left = max(template_frame - self.frame_range, 0)
+    #     right = min(template_frame + self.frame_range, len(frames)-1) + 1
+    #     search_range = frames[left:right]
+    #     template_frame = frames[template_frame]
+    #     search_frame = np.random.choice(search_range)
+    #     return self.get_image_anno(video_name, track, template_frame), \
+    #         self.get_image_anno(video_name, track, search_frame)
 ##
-    def get_random_target(self, index=-1):
-        if index == -1:
-            index = np.random.randint(0, self.num)
-        video_name_rgb= self.seq_dirs_rgb[index]
-        video_name_t = self.seq_dirs_t[index]
-        video_num=len(video_name_rgb)
-        video_gt_rgb = self.rgb_anno_files[index]
-        video_gt_t = self.t_anno_files[index]
-        track = np.random.choice(video_num)
-        track_info = [track]
-        frames = track_info['frames']
-        frame = np.random.choice(frames)
-        return self.get_image_anno(video_name, track, frame)
+    # def get_random_target(self, index=-1):
+    #     if index == -1:
+    #         index = np.random.randint(0, self.num)
+    #     video_name_rgb= self.seq_dirs_rgb[index]
+    #     video_name_t = self.seq_dirs_t[index]
+    #     video_num=len(video_name_rgb)
+    #     video_gt_rgb = self.rgb_anno_files[index]
+    #     video_gt_t = self.t_anno_files[index]
+    #     track = np.random.choice(video_num)
+    #     track_info = [track]
+    #     frames = track_info['frames']
+    #     frame = np.random.choice(frames)
+    #     return self.get_image_anno(video_name, track, frame)
 
     def __len__(self):
         return self.num
@@ -177,10 +183,12 @@ class SubDataset(object):
             if not index in self.seq_names:
                 raise Exception('Sequence {} not found.'.format(index))
             index =self.seq_names.index(index)
+
         img_files_rgb = sorted(glob.glob(os.path.join(
-            self.seq_dirs_rgb[index], '*.*')))
+                   self.seq_dirs_rgb[index], '*.*')))
         img_files_t = sorted(glob.glob(os.path.join(
-            self.seq_dirs_t[index], '*.*')))
+                   self.seq_dirs_t[index], '*.*')))
+
         rgb_anno = np.loadtxt(self.rgb_anno_files[index], delimiter=',')
         t_anno = np.loadtxt(self.t_anno_files[index], delimiter=',')
         assert len(img_files_rgb) == len(img_files_t) and len(rgb_anno) == len(t_anno) \
@@ -194,6 +202,9 @@ class SubDataset(object):
             detection_index= np.clip(random.choice(range(1, max(2, self.max_inter))) + template_index, 0, video_num - 1)# limit detection_index from 0 to video_num - 1
             template_path_rgb, detection_path_rgb  =  img_files_rgb [template_index],  img_files_rgb [detection_index]
             template_path_t, detection_path_t =  img_files_t[template_index],  img_files_t[detection_index]
+
+            # print(template_path_rgb)
+            # print(detection_path_rgb)
 
             template_gt_rgb  =  rgb_anno[template_index]
             detection_gt_rgb =  rgb_anno[detection_index]
@@ -320,7 +331,6 @@ class TrkDataset(Dataset):
         d_search = (instanc_size - exemplar_size) / 2
         pad = d_search / scale_z
         s_x = s_z + 2 * pad
-
        ## z = self.crop_hwc(image, self.pos_s_2_bbox(target_pos, s_z), exemplar_size, padding)
         x = self.crop_hwc(image, self.pos_s_2_bbox(target_pos, s_x), instanc_size, padding)
         return  x
@@ -332,22 +342,14 @@ class TrkDataset(Dataset):
         dataset, index = self._find_dataset(index)
         gray = cfg.DATASET.GRAY and cfg.DATASET.GRAY > np.random.random()
         neg = cfg.DATASET.NEG and cfg.DATASET.NEG > np.random.random()
-
         # get one dataset
-#         if neg:
-#             template = dataset.get_random_target(index)
-#             search = np.random.choice(self.all_dataset).get_random_target()
-#         else:
-#             template, search = dataset.get_positive_pair(index)
-#
-# # ##
         if neg:
            template = dataset.get_random_target(index)
            search = np.random.choice(self.all_dataset).get_random_target()
         else:
            template_path_rgb, detection_path_rgb, template_path_t, detection_path_t, \
            template_target_anno_rgb, detection_target_anno_rgb, template_target_anno_t, detection_target_anno_t = dataset._pick_rgb_and_t_pairs(index)
- ##anno 标注序列第一帧的真值格式(x0,y0,box-width,box-height) 426,185,48,119 x0:left_top,  y0;right_bootom
+      ##anno 标注序列第一帧的真值格式(x0,y0,box-width,box-height) 426,185,48,119 x0:left_top,  y0;right_bootom
         # get image
         template_image_rgb = cv2.imread(template_path_rgb)
         search_image_rgb = cv2.imread(detection_path_rgb)
@@ -356,8 +358,8 @@ class TrkDataset(Dataset):
         if template_image_rgb is None:
             print('error image:',template_path_rgb)
 
-        ##crop image like siamFC
-        ##mean padding
+        ##  crop image like siamFC
+        ##  mean padding
         img_mean_rgb_tem = np.mean(template_image_rgb, axis=(0, 1))
         img_mean_t_tem = np.mean(template_image_t, axis=(0, 1))
         img_mean_rgb_sear = np.mean(search_image_rgb, axis=(0, 1))
@@ -368,7 +370,6 @@ class TrkDataset(Dataset):
         sear_img_rgb=self.crop_like_SiamFC(search_image_rgb,detection_target_anno_rgb,instanc_size=511,padding=img_mean_rgb_sear)
         sear_img_t=self.crop_like_SiamFC(search_image_t,detection_target_anno_t,instanc_size=511,padding=img_mean_t_sear)
 
-
         # get bounding box
         template_box_rgb = self._get_bbox(tem_img_rgb, template_target_anno_rgb)
         template_box_t=self._get_bbox(tem_img_t, template_target_anno_t)
@@ -378,7 +379,12 @@ class TrkDataset(Dataset):
         # bbox1 = template_box_rgb
         # cv2.rectangle(tem_img_rgb, (int(bbox1[0]), int(bbox1[1])),
         #               (int(bbox1[2]), int(bbox1[3])), (0, 0, 255), 2)
-        # cv2.imwrite('/home/xiancong/桌面/cv_drwn1.jpg', tem_img_rgb)
+        # cv2.imwrite('/home/xiancong/桌面/cv_drwn0.jpg', tem_img_rgb)
+        # bbox1 = search_box_rgb
+        # cv2.rectangle(sear_img_rgb, (int(bbox1[0]), int(bbox1[1])),
+        #               (int(bbox1[2]), int(bbox1[3])), (0, 0, 255), 2)
+        # cv2.imwrite('/home/xiancong/桌面/cv_drwn00.jpg', sear_img_rgb)
+
 
         # augmentation
         #crop and  aug
@@ -388,17 +394,25 @@ class TrkDataset(Dataset):
                                         gray=gray)
         # bbox2=_
         # cv2.rectangle(template_rgb, (int(bbox2[0]), int(bbox2[1])), (int(bbox2[2]), int(bbox2[3])), (0, 0, 255), 2)
-        # cv2.imwrite('/home/xiancong/桌面/cv_drwn2.jpg', template_rgb)
+        # cv2.imwrite('/home/xiancong/桌面/cv_drwn1.jpg', template_rgb)
         template_t, _ = self.template_aug(tem_img_t,
                                             template_box_t,
                                             cfg.TRAIN.EXEMPLAR_SIZE,
                                             gray=gray)
+        # bbox2 = _
+        # cv2.rectangle(template_t, (int(bbox2[0]), int(bbox2[1])), (int(bbox2[2]), int(bbox2[3])), (0, 0, 255), 2)
+        # cv2.imwrite('/home/xiancong/桌面/cv_drwn11.jpg', template_t)
+        ##
+        # template_t, _ = self.search_aug(tem_img_t,
+        #                                   template_box_t,
+        #                                   cfg.TRAIN.EXEMPLAR_SIZE,
+        #                                   gray=gray)
         search_rgb, bbox_rgb = self.search_aug(sear_img_rgb,
                                        search_box_rgb,
                                        cfg.TRAIN.SEARCH_SIZE,
                                        gray=gray)
         search_t, bbox_t = self.search_aug(sear_img_t,
-                                       search_box_rgb,
+                                       search_box_t,
                                        cfg.TRAIN.SEARCH_SIZE,
                                        gray=gray)
         # bbox2 = bbox_rgb
@@ -406,13 +420,18 @@ class TrkDataset(Dataset):
         # cv2.imwrite('/home/xiancong/桌面/cv_drwn3.jpg', search_rgb)
         # bbox2 = bbox_t
         # cv2.rectangle(search_t, (int(bbox2[0]), int(bbox2[1])), (int(bbox2[2]), int(bbox2[3])), (0, 0, 255), 2)
-        # cv2.imwrite('/home/xiancong/桌面/cv_drwn4.jpg', search_t)
+        # cv2.imwrite('/home/xiancong/桌面/cv_drwn33.jpg', search_t)
+        # s=search_rgb
         cls = np.zeros((cfg.TRAIN.OUTPUT_SIZE, cfg.TRAIN.OUTPUT_SIZE), dtype=np.int64)
         template_rgb =  template_rgb.transpose((2, 0, 1)).astype(np.float32)
         template_t  =  template_t.transpose((2, 0, 1)).astype(np.float32)
         search_rgb = search_rgb.transpose((2, 0, 1)).astype(np.float32)
         search_t = search_t.transpose((2, 0, 1)).astype(np.float32)
-        new_bbox=Corner((bbox_rgb.x1+bbox_t.x1)//2,(bbox_rgb.y1+bbox_t.y1)//2,(bbox_rgb.x2+bbox_t.x2)//2,(bbox_rgb.y2+bbox_t.y2)//2,)
+        #new_bbox=Corner((bbox_rgb.x1+bbox_t.x1)//2,(bbox_rgb.y1+bbox_t.y1)//2,(bbox_rgb.x2+bbox_t.x2)//2,(bbox_rgb.y2+bbox_t.y2)//2,)
+        new_bbox=bbox_rgb  ##select rgb axis
+        # bbox2 = new_bbox
+        # cv2.rectangle(s, (int(bbox2[0]+1), int(bbox2[1]+1)), (int(bbox2[2]), int(bbox2[3])), (0, 255, 0), 2)
+        # cv2.imwrite('/home/xiancong/桌面/cv_drwnff.jpg', s)
         return {
                 'template_rgb': template_rgb,
                 'template_t': template_t,

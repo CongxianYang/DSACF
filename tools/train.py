@@ -35,8 +35,8 @@ from pysot.core.config import cfg
 
 
 logger = logging.getLogger('global')
-parser = argparse.ArgumentParser(description='siamcar tracking')
-parser.add_argument('--cfg', type=str, default='../experiments/siamcar_r50/config.yaml',
+parser = argparse.ArgumentParser(description='siamDSACF tracking')
+parser.add_argument('--cfg', type=str, default='../experiments/siamDSACF_r50/config.yaml',
                     help='configuration of tracking')
 parser.add_argument('--seed', type=int, default=123456,
                     help='random seed')

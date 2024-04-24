@@ -28,14 +28,14 @@ parser = argparse.ArgumentParser(description='siamcar tracking')
 
 parser.add_argument('--video', default='', type=str,
         help='eval one special video')
-parser.add_argument('--dataset', type=str, default='RGBT234',
-        help='datasets')#OTB100 LaSOT UAV123 GOT-10k  RGBT234
+parser.add_argument('--dataset', type=str, default='GTOT',
+        help='datasets')#OTB100 LaSOT UAV123 GOT-10k  RGBT234 LasHer
 parser.add_argument('--vis', action='store_true',default=True,
         help='whether visualzie result')
-parser.add_argument('--snapshot', type=str, default='/home/xiancong/Project_all/SiamCART_self/tools/snapshot/checkpoint_e21.pth',
+parser.add_argument('--snapshot', type=str, default='/home/xiancong/Project_all/SiamDSACF/tools/snapshot/checkpoint_e13.pth',
         help='snapshot of models to eval')
 
-parser.add_argument('--config', type=str, default='../experiments/siamcar_r50/config.yaml',
+parser.add_argument('--config', type=str, default='../experiments/siamDSACF_r50/config.yaml',
         help='config file')
 
 args = parser.parse_args()
@@ -50,9 +50,11 @@ def main():
     # hp_search
     params = getattr(cfg.HP_SEARCH,args.dataset)
     hp = {'lr': params[0], 'penalty_k':params[1], 'window_lr':params[2]}
-
-    cur_dir = os.path.dirname(os.path.realpath(__file__))
-    dataset_root = os.path.join(cur_dir,'/home/xiancong/Data_set', args.dataset)
+    if(args.dataset=='LasHeR'):
+        dataset_root='/media/xiancong/DataPlus/DataSets/LasHeR0428/LasHeR_Divided_TraningSet&TestingSet/TestingSet/testingset'
+    else:
+        cur_dir = os.path.dirname(os.path.realpath(__file__))
+        dataset_root = os.path.join(cur_dir,'/home/xiancong/Data_set', args.dataset)
 
     model = ModelBuilder()
 
@@ -73,9 +75,9 @@ def main():
     # OPE tracking
     for v_idx, (rgb_img_files, t_img_files, groundtruth, gt_bbox_r, gt_bbox_t) in tqdm(enumerate(dataset),total=len(dataset)):
         # GTOT convert left_top  w,h
-        if args.dataset == 'GTOT':
-           gt_bbox_t[0]= (gt_bbox_t[0][0],gt_bbox_t[0][1],gt_bbox_t[0][2] - gt_bbox_t[0][0], gt_bbox_t[0][3] - gt_bbox_t[0][1])
-           gt_bbox_r[0]= (gt_bbox_r[0][0],gt_bbox_r[0][1],gt_bbox_r[0][2] - gt_bbox_r[0][0], gt_bbox_r[0][3] - gt_bbox_r[0][1])##x,y,w,h
+        # if args.dataset == 'GTOT':
+        #    gt_bbox_t[0]= (gt_bbox_t[0][0],gt_bbox_t[0][1],gt_bbox_t[0][2] - gt_bbox_t[0][0], gt_bbox_t[0][3] - gt_bbox_t[0][1])
+        #    gt_bbox_r[0]= (gt_bbox_r[0][0],gt_bbox_r[0][1],gt_bbox_r[0][2] - gt_bbox_r[0][0], gt_bbox_r[0][3] - gt_bbox_r[0][1])##x,y,w,h
         video_name = dataset.seq_names[v_idx]
         if args.video != '':
             # test one special video
@@ -91,7 +93,7 @@ def main():
             t_img = cv2.imread(t_img_file, cv2.IMREAD_GRAYSCALE)
             t_img = cv2.cvtColor(t_img, cv2.COLOR_GRAY2RGB)
             if idx == 0:
-                cx, cy, w, h = get_axis_aligned_bbox(np.array(gt_bbox_r[idx]))
+                cx, cy, w, h = get_axis_aligned_bbox(np.array(gt_bbox_r[idx]))##统一转化为中心点和宽高
                 gt_bbox_r_ = [cx-(w-1)/2, cy-(h-1)/2, w, h]
                 groundtruth_cv=gt_bbox_r_
                 cx, cy, w, h = get_axis_aligned_bbox(np.array(gt_bbox_t[idx]))

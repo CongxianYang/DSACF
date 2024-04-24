@@ -83,9 +83,10 @@ class SiameseTracker(BaseTracker):
         else:
             im_patch = im[int(context_ymin):int(context_ymax + 1),
                           int(context_xmin):int(context_xmax + 1), :]
-
+        #cv2.imwrite('/home/xiancong/桌面/cv_drwn666.jpg', im_patch)
         if not np.array_equal(model_sz, original_sz):
             im_patch = cv2.resize(im_patch, (model_sz, model_sz))
+        #cv2.imwrite('/home/xiancong/桌面/cv_drwn647.jpg', im_patch)
         im_patch = im_patch.transpose(2, 0, 1)
         im_patch = im_patch[np.newaxis, :, :, :]
         im_patch = im_patch.astype(np.float32)

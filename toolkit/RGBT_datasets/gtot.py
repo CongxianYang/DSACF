@@ -27,11 +27,11 @@ class GTOT(object):
                              for s in self.seq_names]
         self.seq_dirs_t = [os.path.join(root_dir, s, 'i')
                            for s in self.seq_names]
-        self.anno_files = [os.path.join(root_dir, s, 'groundTruth_v.txt')#  init.txt
+        self.anno_files = [os.path.join(root_dir, s, 'init.txt')#  init.txt
                            for s in self.seq_names]
-        self.anno_files_rgb = [os.path.join(root_dir, s, 'groundTruth_v.txt')
+        self.anno_files_rgb = [os.path.join(root_dir, s, 'visible.txt')
                            for s in self.seq_names]
-        self.anno_files_t = [os.path.join(root_dir, s, 'groundTruth_i.txt')
+        self.anno_files_t = [os.path.join(root_dir, s, 'infrared.txt')
                            for s in self.seq_names]
 
     def __len__(self):
@@ -55,9 +55,9 @@ class GTOT(object):
             img_files_t = sorted(glob.glob(os.path.join(
                 self.seq_dirs_t[index], '*.bmp*')))
         ##
-        anno = np.loadtxt(self.anno_files[index], delimiter=' ')#delimiter 分割符
-        anno_rgb = np.loadtxt(self.anno_files_rgb[index], delimiter=' ')
-        anno_t = np.loadtxt(self.anno_files_t[index], delimiter=' ')
+        anno = np.loadtxt(self.anno_files[index], delimiter=',')#delimiter 分割符
+        anno_rgb = np.loadtxt(self.anno_files_rgb[index], delimiter=',')
+        anno_t = np.loadtxt(self.anno_files_t[index], delimiter=',')
         assert len(img_files_rgb) == len(img_files_t) and len(img_files_t) == len(anno) \
                and len(anno) == len(anno_rgb) and len(anno_rgb) == len(anno_t)
 

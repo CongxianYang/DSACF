@@ -37,7 +37,7 @@ class DatasetFactory(object):
         elif 'GTOT' in name:
             dataset = gtot.GTOT(root_dir)
         elif 'LasHeR' == name:
-            dataset = LasHeR(root_dir)
+            dataset = rgbt234_lasher.RGBT234_Lasher(root_dir)
         else:
             raise Exception("unknow dataset {}".format(kwargs['name']))
         return dataset

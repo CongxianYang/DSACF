@@ -14,7 +14,7 @@ class RGBT234_Lasher(object):
         ...
     """
 
-    def __init__(self, root_dir, list = 'rgbt234.txt'):
+    def __init__(self, root_dir, list = 'testingsetList.txt'):
         super(RGBT234_Lasher, self).__init__()
         assert isinstance(root_dir, six.string_types)
         assert isinstance(list, six.string_types)
@@ -27,6 +27,7 @@ class RGBT234_Lasher(object):
                              for s in self.seq_names]
         self.seq_dirs_t = [os.path.join(root_dir, s, 'infrared')
                            for s in self.seq_names]
+        self.anno_files = [os.path.join(root_dir, s, 'init.txt') for s in self.seq_names]
         self.rgb_anno_files = [os.path.join(root_dir, s, 'visible.txt')
                            for s in self.seq_names]
         self.t_anno_files = [os.path.join(root_dir, s, 'infrared.txt')##跟init一样
@@ -46,13 +47,14 @@ class RGBT234_Lasher(object):
         img_files_t = sorted(glob.glob(os.path.join(
             self.seq_dirs_t[index], '*.*')))
         rgb_anno = np.loadtxt(self.rgb_anno_files[index], delimiter=',')
+        anno = np.loadtxt(self.anno_files[index], delimiter=',')
         t_anno = np.loadtxt(self.t_anno_files[index], delimiter=',')
         assert len(img_files_rgb) == len(img_files_t) and len(rgb_anno) == len(t_anno) \
                and len(img_files_t) == len(rgb_anno)
 
-        return img_files_rgb, img_files_t, rgb_anno, t_anno
+        return img_files_rgb, img_files_t, anno,rgb_anno, t_anno
 
-    def _check_integrity(self, root_dir, list = 'rgbt234.txt'):
+    def _check_integrity(self, root_dir, list = 'testingsetList.txt'):
         list_file = os.path.join(root_dir, list)
         if os.path.isfile(list_file):
             with open(list_file, 'r') as f:
@@ -65,6 +67,6 @@ class RGBT234_Lasher(object):
             raise Exception('Dataset not found or corrupted.')
 
 if __name__ == "__main__":
-    root_dir = '/dataset/LasHeR3'
-    dataset = RGBT234_Lasher(root_dir = root_dir, list = 'trainingsetList.txt')
+    root_dir = '/media/xiancong/DataPlus/DataSets/LasHeR0428/LasHeR_Divided_TraningSet&TestingSet/TrainingSet/trainingset'
+    dataset = RGBT234_Lasher(root_dir = root_dir, list = 'trainingsetList_LasHer.txt')
     dataset.__getitem__(180)

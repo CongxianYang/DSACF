@@ -31,8 +31,8 @@ class ModelBuilder(nn.Module):
             self.neck = get_neck(cfg.ADJUST.TYPE,
                                  **cfg.ADJUST.KWARGS)
         ##add attention
-        self.template_attention_block = GlobalAttentionBlock()
-        self.detection_attention_block = CBAM(512)
+        self.template_attention_block = GlobalAttentionBlock()##通道注意力机制
+        self.detection_attention_block = CBAM(512)##混合注意力机制
         ##Multi-modal feature fusion CA-MF
         ##zf shoudle CIF torch.cat    xf shoudle DFF
         self.feature_fusion=RGBT_fusion()
@@ -119,7 +119,7 @@ class ModelBuilder(nn.Module):
             zf_t = self.neck(zf_t)
             xf_rgb = self.neck(xf_rgb)##(bs,256,31,31)
             xf_t = self.neck(xf_t)
-       # ger attention feature
+       # ger attention feature    for 3 layer
         for i in range(len(zf_rgb)):
             zf_rgb[i], zf_t[i] = self.template_attention_block(zf_rgb[i], zf_t[i])
             union = torch.cat((xf_rgb[i], xf_t[i]), 1)
@@ -131,10 +131,10 @@ class ModelBuilder(nn.Module):
             features_fusion_z[i]=self.feature_fusion(zf_rgb[i],zf_t[i])
             features_fusion_x[i]=self.feature_fusion(xf_rgb[i],xf_t[i])
 
-  ##deep corr_realation
+  ##deep corr_realation   final feature
         features = self.xcorr_depthwise(features_fusion_x[0],features_fusion_z[0])
         for i in range(len(features_fusion_z)-1):
-            features_new = self.xcorr_depthwise(features_fusion_x[i],features_fusion_z[i])
+            features_new = self.xcorr_depthwise(features_fusion_x[i+1],features_fusion_z[i+1])
             features = torch.cat([features,features_new],1)##[bs,256x3,25,25]
         features = self.down(features)#[bs,256,25,25]
 

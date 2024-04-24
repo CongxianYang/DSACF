@@ -11,7 +11,7 @@ __C = CN()
 
 cfg = __C
 
-__C.META_ARC = "siamcar_r50"
+__C.META_ARC = "siamDSACF_r50"
 
 __C.CUDA = True
 
@@ -41,7 +41,7 @@ __C.TRAIN.START_EPOCH = 0
 
 __C.TRAIN.BATCH_SIZE = 32
 
-__C.TRAIN.NUM_WORKERS = 0
+__C.TRAIN.NUM_WORKERS =30        ##shoule 0
 
 __C.TRAIN.MOMENTUM = 0.9
 
@@ -125,22 +125,35 @@ __C.DATASET.NEG = 0.0
 
 __C.DATASET.GRAY = 0.0
 
-__C.DATASET.NAMES = ('RGBT234', 'GTOT', 'DET', 'YOUTUBEBB')
+__C.DATASET.NAMES = ('RGBT234', 'GTOT', 'LasHeR')
 
 
 ##
 __C.DATASET.RGBT234 = CN()
-__C.DATASET.RGBT234.ROOT = '/home/xiancong/Data_set/RGBT234'          # VID dataset path
-__C.DATASET.RGBT234.LIST = '/home/xiancong/Data_set/RGBT234/rgbt234.txt'
-__C.DATASET.RGBT234.FRAME_RANGE = 50
-__C.DATASET.RGBT234.NUM_USE = 100000
+__C.DATASET.RGBT234.ROOT = '/home/xiancong/Data_set/RGBT234'  #'/home/xiancong/Data_set/RGBT234
+__C.DATASET.RGBT234.LIST = '/home/xiancong/Data_set/RGBT234/rgbt234.txt'##/home/xiancong/Data_set/RGBT234/rgbt234.txt
+__C.DATASET.RGBT234.FRAME_RANGE = 100
+__C.DATASET.RGBT234.NUM_USE = -1
 
+
+__C.DATASET.LasHeR = CN()
+__C.DATASET.LasHeR.ROOT = '/root/autodl-tmp/DataSet/LasHeR/trainSet/trainingset'
+__C.DATASET.LasHeR.LIST = '/root/autodl-tmp/DataSet/LasHeR/trainSet/trainingsetList_LasHer.txt'
+__C.DATASET.LasHeR.FRAME_RANGE = 100
+__C.DATASET.LasHeR.NUM_USE = 100000
+
+
+__C.DATASET.GTOT = CN()
+__C.DATASET.GTOT.ROOT = '/root/autodl-tmp/DataSet/GTOT'       ###/home/xiancong/Data_set/GTOT'
+__C.DATASET.GTOT.LIST = '/root/autodl-tmp/DataSet/GTOT/gtot.txt'  ##'/home/xiancong/Data_set/GTOT/gtot.txt'
+__C.DATASET.GTOT.FRAME_RANGE = 50
+__C.DATASET.GTOT.NUM_USE = -1
 ##
 __C.DATASET.VID = CN()
 __C.DATASET.VID.ROOT = 'train_dataset/vid/crop511'          # VID dataset path
 __C.DATASET.VID.ANNO = 'train_dataset/vid/train.json'
 __C.DATASET.VID.FRAME_RANGE = 100
-__C.DATASET.VID.NUM_USE = 100000  # repeat until reach NUM_USE
+__C.DATASET.VID.NUM_USE = -1  # repeat until reach NUM_USE
 
 __C.DATASET.YOUTUBEBB = CN()
 __C.DATASET.YOUTUBEBB.ROOT = 'train_dataset/yt_bb/crop511'  # YOUTUBEBB dataset path
@@ -184,7 +197,7 @@ __C.BACKBONE.TYPE = 'res50'
 __C.BACKBONE.KWARGS = CN(new_allowed=True)
 
 # Pretrained backbone weights
-__C.BACKBONE.PRETRAINED = '/home/xiancong/Project_all/SiamCART_self/pretrained_models/resnet50.model'
+__C.BACKBONE.PRETRAINED = '/root/SIamCART_sf/pretrained_models/resnet50.model'
 
 # Train layers
 __C.BACKBONE.TRAIN_LAYERS = ['layer2', 'layer3', 'layer4']
@@ -277,5 +290,5 @@ __C.HP_SEARCH.RGBT234 = [0.35, 0.2, 0.45]
 
 __C.HP_SEARCH.GTOT = [0.7, 0.06, 0.1]
 
-__C.HP_SEARCH.LaSheR1 = [0.4, 0.2, 0.3]
+__C.HP_SEARCH.LasHeR = [0.4, 0.2, 0.3]
 
