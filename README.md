@@ -1,6 +1,6 @@
 # DSACF
 
-Testing and training code of paper ***HIGH SPEED AND ROBUST RGB-THERMAL TRACKING VIA DUAL ATTENTIVE STREAM SIAMESE NETWORK*** of The International Geoscience and Remote Sensing Symposium (IGARSS). 
+Testing and training code of paper ''Dual-Stream Attention and Complementarity Fusion RGB-T Tracking Based on Siamese Network''
 
 - python3.7
 
