@@ -1,6 +1,6 @@
 # DSACF
 
-Testing and training code of paper ''Dual-Stream Attention and Complementarity Fusion RGB-T Tracking Based on Siamese Network''
+Testing and training code of paper **Dual-Stream Attention and Complementarity Fusion RGB-T Tracking Based on Siamese Network**
 
 - python3.7
 
